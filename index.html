@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zayena Olive | Maison de Tartinades Artisanales</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        olive: {
+                            50: '#f8f6f2',
+                            100: '#f1eee6',
+                            800: '#1a1a1a',
+                            900: '#0f0f0f',
+                        },
+                        gold: '#c5a059',
+                    },
+                    fontFamily: {
+                        playfair: ['Playfair Display', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* =============================================
+           PHOTO QUALITY ENHANCEMENTS
+           ============================================= */
+
+        /* Global image rendering improvements */
+        img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0); /* GPU acceleration */
+        }
+
+        /* Hero image — cinematic, rich, warm tones */
+        .hero-img {
+            filter: contrast(1.12) saturate(1.25) brightness(1.05) hue-rotate(-3deg);
+            transform: translateZ(0) scale(1.01);
+            will-change: transform;
+        }
+
+        /* Product card images — vivid, appetizing, sharp */
+        .product-img {
+            filter: contrast(1.15) saturate(1.4) brightness(1.08) sharpness(1);
+            transition: filter 0.5s ease, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateZ(0);
+            will-change: transform, filter;
+        }
+
+        .product-card:hover .product-img {
+            filter: contrast(1.2) saturate(1.55) brightness(1.1);
+            transform: translateZ(0) scale(1.08);
+        }
+
+        /* Lifestyle/editorial photos — warm golden tone */
+        .lifestyle-img {
+            filter: contrast(1.1) saturate(1.3) brightness(1.04) sepia(0.08);
+            transform: translateZ(0);
+        }
+
+        /* Pride section jar photo — deep, rich, moody */
+        .pride-img {
+            filter: contrast(1.18) saturate(1.35) brightness(1.02);
+            transform: translateZ(0);
+        }
+
+        /* =============================================
+           PRODUCT CARD VIGNETTE EFFECT
+           ============================================= */
+        .product-img-wrap {
+            position: relative;
+        }
+
+        .product-img-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 1.5rem;
+            background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.12) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* =============================================
+           LIFESTYLE IMAGE ENHANCEMENTS
+           ============================================= */
+        .lifestyle-wrap {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lifestyle-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(197,160,89,0.04) 0%, transparent 50%, rgba(0,0,0,0.06) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* =============================================
+           HERO OVERLAY — GRADIENT WARMTH
+           ============================================= */
+        .hero-overlay {
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.15) 0%,
+                rgba(15,10,5,0.35) 60%,
+                rgba(10,8,4,0.55) 100%
+            );
+        }
+
+        /* =============================================
+           REMAINING ORIGINAL STYLES
+           ============================================= */
+        .glass-nav {
+            background: rgba(248, 246, 242, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .cart-drawer {
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .stat-icon {
+            background: #f1eee6;
+            border-radius: 50%;
+            padding: 1rem;
+            display: inline-flex;
+        }
+        input:focus {
+            border-color: #c5a059 !important;
+            box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.1);
+        }
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+
+        /* Pride section image zoom on load */
+        .pride-img-wrap {
+            overflow: hidden;
+        }
+        .pride-img-wrap img {
+            transition: transform 8s ease;
+        }
+        .pride-img-wrap:hover img {
+            transform: scale(1.04);
+        }
+    </style>
+</head>
+
+<body class="bg-olive-50 text-olive-800 font-sans antialiased">
+
+    <!-- PANIER (DRAWER AVEC TUNNEL DE COMMANDE) -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/40 z-[4000] hidden opacity-0 transition-opacity duration-300" onclick="toggleCart()"></div>
+    <div id="cart-drawer" class="fixed right-0 top-0 h-full w-full sm:w-[420px] bg-white z-[5000] translate-x-full cart-drawer shadow-2xl flex flex-col">
+        
+        <div class="p-6 border-b flex justify-between items-center bg-olive-50">
+            <h2 class="font-playfair italic text-2xl" id="cart-title">Votre Panier</h2>
+            <button onclick="toggleCart()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <div id="cart-scroll-container" class="flex-grow overflow-y-auto">
+            <!-- VUE 1 : RÉCAPITULATIF DES ARTICLES -->
+            <div id="cart-view-items" class="p-6 space-y-6">
+                <div id="cart-items" class="space-y-6">
+                    <!-- Items injectés par JS -->
+                </div>
+            </div>
+
+            <!-- VUE 2 : FORMULAIRE DE COMMANDE -->
+            <div id="cart-view-checkout" class="p-6 space-y-8 hidden">
+                <button onclick="showItems()" class="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-4">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour au panier
+                </button>
+
+                <div class="space-y-4">
+                    <h3 class="font-playfair text-xl italic border-b pb-2">Informations de livraison</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="cust-fname" placeholder="Prénom" class="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none">
+                        <input type="text" id="cust-lname" placeholder="Nom" class="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none">
+                    </div>
+                    <input type="tel" id="cust-phone" placeholder="Téléphone" class="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none">
+                    <input type="text" id="cust-address" placeholder="Ville et adresse complète" class="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none">
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-playfair text-xl italic border-b pb-2">Mode de paiement</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-4 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer">
+                            <input type="radio" name="pay-mode" value="Paiement à la livraison" checked class="accent-gold w-4 h-4">
+                            <span class="ml-3 text-sm font-medium">Paiement à la livraison (Cash)</span>
+                        </label>
+                        <label class="flex items-center p-4 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer">
+                            <input type="radio" name="pay-mode" value="Virement Bancaire" class="accent-gold w-4 h-4">
+                            <span class="ml-3 text-sm font-medium">Virement / Versement Bancaire</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VUE 3 : CONFIRMATION FINALE (SUCCÈS) -->
+            <div id="cart-view-success" class="p-8 text-center space-y-6 hidden">
+                <div class="success-checkmark flex items-center justify-center bg-green-100 text-green-500 rounded-full mx-auto">
+                    <i data-lucide="check" class="w-10 h-10"></i>
+                </div>
+                <h3 class="font-playfair text-3xl italic">Commande reçue !</h3>
+                <p class="text-gray-500">Merci pour votre confiance. Nous préparons vos produits avec le plus grand soin.</p>
+                <div id="order-summary-box" class="bg-gray-50 p-6 rounded-2xl text-left text-sm space-y-2 border border-dashed border-gray-200">
+                    <!-- Détails injectés -->
+                </div>
+                <button onclick="toggleCart(); resetAll();" class="w-full border border-olive-800 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-olive-800 hover:text-white transition-all">
+                    Fermer le panier
+                </button>
+            </div>
+        </div>
+
+        <div id="cart-footer" class="p-6 border-t bg-olive-50">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-500 font-medium">Total estimation</span>
+                <span id="cart-total-price" class="text-2xl font-bold text-olive-800">0 MAD</span>
+            </div>
+            
+            <div id="footer-btn-container">
+                <button onclick="showCheckout()" id="btn-goto-checkout" class="w-full bg-olive-800 text-white py-5 rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-lg">
+                    Commander mes produits
+                </button>
+                <button onclick="checkoutFinal()" id="btn-submit-order" class="hidden w-full bg-gold text-white py-5 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg">
+                    Valider ma commande
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-[3000] glass-nav border-b border-black/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="#" class="font-playfair italic text-2xl font-bold tracking-tight">Zayena Olive</a>
+            
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex gap-8 text-xs font-semibold uppercase tracking-widest">
+                    <a href="#collection" class="hover:text-gold transition-colors">Produits</a>
+                    <a href="#about" class="hover:text-gold transition-colors">À propos</a>
+                    <a href="#reviews" class="hover:text-gold transition-colors">Avis</a>
+                </div>
+                <button onclick="toggleCart()" class="relative p-2">
+                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-gold text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold border-2 border-white">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="relative h-[90vh] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0">
+            <!-- Enhanced hero image with warm cinematic filter -->
+            <img 
+                src="https://i.ibb.co/7NyGJ8Mm/image2.jpg" 
+                alt="Zayena Olive" 
+                class="hero-img w-full h-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+            >
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+        <div class="relative z-10 text-center px-6">
+            <h1 class="font-playfair italic text-white text-5xl md:text-8xl mb-6 tracking-tight">Le Goût de<br>l'Authenticité Marocaine</h1>
+            <p class="text-white/90 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed mb-10">
+                Tartinades d'olive artisanales faites avec des ingrédients premium et des recettes traditionnelles transmises de génération en génération.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#collection" class="bg-white text-olive-800 px-10 py-4 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-gold hover:text-white transition-all shadow-xl">Voir la Collection</a>
+                <a href="#about" class="bg-white/20 backdrop-blur-md text-white border border-white/30 px-10 py-4 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-white/40 transition-all">En Savoir Plus</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- PILLARS SECTION -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
+            <div class="space-y-4">
+                <div class="stat-icon text-gold"><i data-lucide="leaf"></i></div>
+                <h3 class="font-bold uppercase text-sm tracking-tighter">Ingrédients Premium</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Olives sélectionnées et ingrédients naturels du Maroc.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="stat-icon text-gold"><i data-lucide="scroll-text"></i></div>
+                <h3 class="font-bold uppercase text-sm tracking-tighter">Recette Authentique</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Recettes traditionnelles transmises avec soin.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="stat-icon text-gold"><i data-lucide="truck"></i></div>
+                <h3 class="font-bold uppercase text-sm tracking-tighter">Livraison Rapide</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Expédition fiable pour vos produits frais.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="stat-icon text-gold"><i data-lucide="heart"></i></div>
+                <h3 class="font-bold uppercase text-sm tracking-tighter">Préparé avec Amour</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Chaque pot est un dévouement à la qualité.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- COLLECTION -->
+    <section id="collection" class="py-24 px-6 bg-olive-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-playfair text-4xl md:text-5xl italic mb-4">Notre Collection</h2>
+                <div class="w-16 h-1 bg-gold mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Produit 1 -->
+                <div class="product-card group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all border border-black/5 p-4">
+                    <div class="product-img-wrap h-80 overflow-hidden rounded-[1.5rem] mb-6">
+                        <img 
+                            src="https://i.ibb.co/JWFRG3Lw/gamme1.jpg" 
+                            alt="Olive Citron" 
+                            class="product-img w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </div>
+                    <div class="text-center px-4 pb-4">
+                        <h3 class="font-playfair text-2xl italic mb-2">Olive-Citron</h3>
+                        <p class="text-gray-400 text-xs uppercase tracking-widest mb-4">Mélange frais de citron et olive</p>
+                        <span class="text-gold font-bold text-xl block mb-6">28 MAD</span>
+                        <button onclick="addToCart('Olive-Citron', 28, 'https://i.ibb.co/JWFRG3Lw/gamme1.jpg')" class="w-full bg-olive-800 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gold transition-colors">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                <!-- Produit 2 -->
+                <div class="product-card group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all border border-black/5 p-4">
+                    <div class="product-img-wrap h-80 overflow-hidden rounded-[1.5rem] mb-6">
+                        <img 
+                            src="https://i.ibb.co/rKgPb2mD/gamme2.jpg" 
+                            alt="Thym" 
+                            class="product-img w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </div>
+                    <div class="text-center px-4 pb-4">
+                        <h3 class="font-playfair text-2xl italic mb-2">Thym</h3>
+                        <p class="text-gray-400 text-xs uppercase tracking-widest mb-4">Tartinade infusée au thym</p>
+                        <span class="text-gold font-bold text-xl block mb-6">28 MAD</span>
+                        <button onclick="addToCart('Thym', 28, 'https://i.ibb.co/rKgPb2mD/gamme2.jpg')" class="w-full bg-olive-800 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gold transition-colors">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                <!-- Produit 3 -->
+                <div class="product-card group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all border border-black/5 p-4">
+                    <div class="product-img-wrap h-80 overflow-hidden rounded-[1.5rem] mb-6">
+                        <img 
+                            src="https://i.ibb.co/SWVNs61/gamme3.jpg" 
+                            alt="Harissa" 
+                            class="product-img w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </div>
+                    <div class="text-center px-4 pb-4">
+                        <h3 class="font-playfair text-2xl italic mb-2">Harissa</h3>
+                        <p class="text-gray-400 text-xs uppercase tracking-widest mb-4">Mélange épicé harissa et olive</p>
+                        <span class="text-gold font-bold text-xl block mb-6">30 MAD</span>
+                        <button onclick="addToCart('Harissa', 30, 'https://i.ibb.co/SWVNs61/gamme3.jpg')" class="w-full bg-gold text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-olive-800 transition-colors shadow-lg">Ajouter au Panier</button>
+                    </div>
+                </div>
+
+                <!-- Produit 4 -->
+                <div class="product-card group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all border border-black/5 p-4">
+                    <div class="product-img-wrap h-80 overflow-hidden rounded-[1.5rem] mb-6">
+                        <img 
+                            src="https://i.ibb.co/s9c3W70W/gamme4.jpg" 
+                            alt="Persil" 
+                            class="product-img w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </div>
+                    <div class="text-center px-4 pb-4">
+                        <h3 class="font-playfair text-2xl italic mb-2">Persil</h3>
+                        <p class="text-gray-400 text-xs uppercase tracking-widest mb-4">Combinaison de persil et olive</p>
+                        <span class="text-gold font-bold text-xl block mb-6">28 MAD</span>
+                        <button onclick="addToCart('Persil', 28, 'https://i.ibb.co/s9c3W70W/gamme4.jpg')" class="w-full bg-olive-800 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gold transition-colors">Ajouter au Panier</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MILLE FAÇONS -->
+    <section id="about" class="py-24 bg-white px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="font-playfair text-4xl md:text-5xl italic mb-6">Mille Façons de Savourer</h2>
+                <p class="text-gray-500 max-w-xl mx-auto">Découvrez comment nos tartinades peuvent transformer vos repas quotidiens en expériences extraordinaires.</p>
+            </div>
+
+            <!-- Bruschettas -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
+                <div class="space-y-8 order-2 lg:order-1">
+                    <h3 class="font-playfair text-3xl italic">Bruschettas Gourmandes</h3>
+                    <p class="text-gray-600 leading-relaxed text-lg">
+                        Tartinez généreusement nos tartinades d'olive sur du pain grillé croustillant. Ajoutez des tomates fraîches et un trait d'huile d'olive pour une entrée élégante.
+                    </p>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="text-gold w-5 h-5"></i> Parfait pour les apéritifs</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="text-gold w-5 h-5"></i> Prêt en moins de 5 minutes</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="text-gold w-5 h-5"></i> Impressionne vos invités</li>
+                    </ul>
+                </div>
+                <!-- Enhanced lifestyle photo with warm golden overlay -->
+                <div class="lifestyle-wrap rounded-[3rem] overflow-hidden h-[500px] shadow-2xl order-1 lg:order-2">
+                    <img 
+                        src="https://i.ibb.co/scYL7hK/photo4.jpg" 
+                        alt="Bruschetta" 
+                        class="lifestyle-img w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                </div>
+            </div>
+
+            <!-- Accompagnement -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="lifestyle-wrap rounded-[3rem] overflow-hidden h-[500px] shadow-2xl">
+                    <img 
+                        src="https://i.ibb.co/LhcFnXFY/photo5.jpg" 
+                        alt="Planche Apéro" 
+                        class="lifestyle-img w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                </div>
+                <div class="space-y-8">
+                    <h3 class="font-playfair text-3xl italic">Accompagnement Parfait</h3>
+                    <p class="text-gray-600 leading-relaxed text-lg">
+                        Servez nos créations avec du pain frais, des crackers ou des légumes crus. C'est l'âme des repas en famille ou entre amis.
+                    </p>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="text-gold w-5 h-5"></i> Saveurs authentiques marocaines</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="text-gold w-5 h-5"></i> 100% Naturel sans conservateurs</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="text-gold w-5 h-5"></i> Idéal pour les pique-niques</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUALITÉ / NOTRE FIERTÉ -->
+    <section class="py-24 bg-olive-100 px-6">
+        <div class="max-w-6xl mx-auto bg-white rounded-[4rem] overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-2">
+            <div class="p-12 md:p-20 flex flex-col justify-center space-y-8">
+                <h2 class="font-playfair text-4xl italic">Zayena Olive - Notre Fierté</h2>
+                <p class="text-gray-600 leading-relaxed italic">
+                    "Zayena Olive s'engage à apporter les saveurs authentiques du Maroc à vos tables. Avec une passion pour la qualité, nous avons construit une communauté de clients fidèles qui apprécient l'excellence du 100% naturel."
+                </p>
+                <div class="flex items-center gap-4 text-gold font-bold uppercase text-xs tracking-tighter">
+                    <span class="w-12 h-px bg-gold"></span>
+                    Maison Artisanale
+                </div>
+            </div>
+            <!-- Enhanced pride jar photo — deep, rich tone -->
+            <div class="pride-img-wrap h-full min-h-[400px]">
+                <img 
+                    src="https://i.ibb.co/ZRV0HD6j/image.jpg" 
+                    alt="Zayena Jar" 
+                    class="pride-img w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                >
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews" class="py-24 px-6 bg-olive-900 text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-playfair italic text-4xl mb-4 tracking-tight">Ce que Disent Nos Clients</h2>
+                <div class="w-12 h-1 bg-gold mx-auto"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white/5 p-10 rounded-[2.5rem] border border-white/10 text-center space-y-6">
+                    <div class="text-gold flex justify-center gap-1">
+                        <i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i>
+                    </div>
+                    <p class="italic text-lg text-white/80">"La tartinade au citron est une révolution pour mes apéros. Frais et authentique !"</p>
+                    <span class="block text-xs font-bold uppercase tracking-widest text-gold">Sarah M.</span>
+                </div>
+                <div class="bg-white/5 p-10 rounded-[2.5rem] border border-white/10 text-center space-y-6">
+                    <div class="text-gold flex justify-center gap-1">
+                        <i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i>
+                    </div>
+                    <p class="italic text-lg text-white/80">"L'Harissa est parfaitement dosée. On sent le vrai goût du terroir."</p>
+                    <span class="block text-xs font-bold uppercase tracking-widest text-gold">Ahmed K.</span>
+                </div>
+                <div class="bg-white/5 p-10 rounded-[2.5rem] border border-white/10 text-center space-y-6">
+                    <div class="text-gold flex justify-center gap-1">
+                        <i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i><i data-lucide="star" class="fill-gold w-4 h-4"></i>
+                    </div>
+                    <p class="italic text-lg text-white/80">"Service rapide et qualité irréprochable. Mes enfants adorent la version au persil."</p>
+                    <span class="block text-xs font-bold uppercase tracking-widest text-gold">Elena R.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-olive-900 border-t border-white/10 py-16 text-center text-white/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="font-playfair italic text-white text-4xl mb-12">Zayena Olive</h2>
+            
+            <div class="flex justify-center gap-10 mb-12">
+                <a href="https://www.tiktok.com/@zayena.olive?_r=1&_t=ZS-940bWqHcptM" target="_blank" class="hover:text-gold transition-all transform hover:-translate-y-1">
+                    <i class="fab fa-tiktok text-3xl"></i>
+                </a>
+                <a href="https://www.instagram.com/zayena.olive/" target="_blank" class="hover:text-gold transition-all transform hover:-translate-y-1">
+                    <i class="fab fa-instagram text-3xl"></i>
+                </a>
+                <a href="https://wa.me/212690238881" target="_blank" class="hover:text-gold transition-all transform hover:-translate-y-1">
+                    <i class="fab fa-whatsapp text-3xl"></i>
+                </a>
+            </div>
+
+            <p class="text-[10px] uppercase tracking-[4px] font-bold">© 2026 Zayena Olive — Marrakech. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Gestion du Panier
+        let cart = [];
+
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) return alert("Votre panier est vide");
+            document.getElementById('cart-view-items').classList.add('hidden');
+            document.getElementById('cart-view-checkout').classList.remove('hidden');
+            document.getElementById('btn-goto-checkout').classList.add('hidden');
+            document.getElementById('btn-submit-order').classList.remove('hidden');
+            document.getElementById('cart-title').innerText = "Ma Commande";
+            document.getElementById('cart-scroll-container').scrollTop = 0;
+        }
+
+        function showItems() {
+            document.getElementById('cart-view-items').classList.remove('hidden');
+            document.getElementById('cart-view-checkout').classList.add('hidden');
+            document.getElementById('cart-view-success').classList.add('hidden');
+            document.getElementById('btn-goto-checkout').classList.remove('hidden');
+            document.getElementById('btn-submit-order').classList.add('hidden');
+            document.getElementById('cart-footer').classList.remove('hidden');
+            document.getElementById('cart-title').innerText = "Votre Panier";
+        }
+
+        function addToCart(name, price, img) {
+            const existing = cart.find(item => item.name === name);
+            if(existing) {
+                existing.qty++;
+            } else {
+                cart.push({ name, price, img, qty: 1 });
+            }
+            updateCart();
+            toggleCart(); 
+        }
+
+        function removeItem(name) {
+            cart = cart.filter(item => item.name !== name);
+            updateCart();
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            const count = document.getElementById('cart-count');
+            const total = document.getElementById('cart-total-price');
+            
+            container.innerHTML = '';
+            let totalValue = 0;
+            let totalQty = 0;
+
+            cart.forEach((item) => {
+                totalValue += (item.price * item.qty);
+                totalQty += item.qty;
+                container.innerHTML += `
+                    <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <img src="${item.img}" class="w-16 h-16 object-cover rounded-xl shadow-sm" style="filter: contrast(1.15) saturate(1.4) brightness(1.08);">
+                        <div class="flex-grow">
+                            <h4 class="font-playfair italic text-lg leading-tight">${item.name}</h4>
+                            <p class="text-gold font-bold text-sm">${item.price} MAD <span class="text-gray-400 font-normal">x ${item.qty}</span></p>
+                        </div>
+                        <button onclick="removeItem('${item.name}')" class="text-gray-300 hover:text-red-500 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            count.innerText = totalQty;
+            total.innerText = totalValue + " MAD";
+            lucide.createIcons();
+        }
+
+        function checkoutFinal() {
+            const fname = document.getElementById('cust-fname').value;
+            const lname = document.getElementById('cust-lname').value;
+            const phone = document.getElementById('cust-phone').value;
+            const address = document.getElementById('cust-address').value;
+            const payment = document.querySelector('input[name="pay-mode"]:checked').value;
+
+            if (!fname || !lname || !phone || !address) {
+                return alert("Veuillez remplir toutes vos informations de livraison.");
+            }
+            
+            document.getElementById('cart-view-checkout').classList.add('hidden');
+            document.getElementById('cart-view-success').classList.remove('hidden');
+            document.getElementById('cart-footer').classList.add('hidden');
+            document.getElementById('cart-title').innerText = "Confirmation";
+
+            const summaryBox = document.getElementById('order-summary-box');
+            let itemsHtml = cart.map(i => `<div>• ${i.name} x${i.qty}</div>`).join('');
+            summaryBox.innerHTML = `
+                <div class="font-bold mb-2">Détails de l'envoi :</div>
+                <div>${fname} ${lname}</div>
+                <div>${phone}</div>
+                <div class="mb-4">${address}</div>
+                <div class="font-bold border-t pt-2">Articles :</div>
+                ${itemsHtml}
+                <div class="mt-4 pt-2 border-t font-bold text-olive-800">Total : ${document.getElementById('cart-total-price').innerText}</div>
+                <div class="text-[10px] text-gray-400 mt-2 italic">Mode : ${payment}</div>
+            `;
+            
+            lucide.createIcons();
+        }
+
+        function resetAll() {
+            cart = [];
+            updateCart();
+            document.getElementById('cust-fname').value = '';
+            document.getElementById('cust-lname').value = '';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('cust-address').value = '';
+            showItems();
+        }
+    </script>
+</body>
+</html>
